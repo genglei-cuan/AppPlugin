@@ -5,6 +5,7 @@ package com.cuan.plugincore.pluginmanager;
  * genglei.cuan@godinsec.com
  */
 
+import android.annotation.TargetApi;
 import android.os.Build;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import java.util.zip.ZipFile;
  *
  * TODO: 类在的CPU_ABI是一个与Android密切相关的变量，后续需要认真适配，暂时使用废弃的api
  */
+
 public class PluginUtils {
 
 
@@ -84,6 +86,7 @@ public class PluginUtils {
      * @param libPath
      * @throws Exception
      *
+     * TODO: 后续可以考虑JNI实现,以提高效率
      */
     public static void copyLibs(String apkPath, String libPath) throws Exception {
         ZipFile zipFile = new ZipFile(apkPath);

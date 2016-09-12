@@ -1,1 +1,1 @@
-include ':app', ':plugincore'
+include ':app', ':plugincore', ':hiddenapistubs'

@@ -1,4 +1,4 @@
-package helper.log;
+package com.cuan.helper.log;
 
 /**
  * Created by genglei.cuan on 16/9/11.

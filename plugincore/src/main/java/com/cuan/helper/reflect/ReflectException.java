@@ -1,4 +1,4 @@
-package helper.reflect;
+package com.cuan.helper.reflect;
 
 /**
  * Copyright (c) 2011-2016, Data Geekery GmbH (http://www.datageekery.com)

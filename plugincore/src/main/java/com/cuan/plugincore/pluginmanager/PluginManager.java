@@ -8,10 +8,16 @@ package com.cuan.plugincore.pluginmanager;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 
 import java.io.File;
+import java.util.ArrayList;
 
-import helper.log.LogUtil;
+import com.cuan.helper.log.LogUtil;
+import com.cuan.plugincore.plugin.PluginInfo;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  * 管理所有的插件。
@@ -43,7 +49,7 @@ public class PluginManager {
 
     private PluginManager(){};
 
-    public PluginManager getInstance(){
+    public static PluginManager getInstance(){
         if(instance != null)
             return instance;
         else
@@ -95,50 +101,50 @@ public class PluginManager {
     }
 
     /**
-     * 从默认插件目录中加载插件。
+     * 从数据库中查询之前安装的插件信息,并安装
      *
-     * 一般宿主App自己所需的插件(根据项目需要拆分的子块)都放到这里。
-     *
-     * 此处不加载第三方App。
-     *
-     * 需要在数据库中做好记录:包名+版本号
+     * 需要在数据库中做好记录:包名,版本号,插件apk路径
      */
     public void loadPlugins(){
 
     }
 
-    /**
-     * 安装某一个插件
-     *
-     * 独立的第三方App都通过此方法加载
-     *
-     * 需要在数据库中做好记录:包名+版本号
-     */
-    public void installPlugin(){
-
-    }
-
-    /**
-     * 卸载某一个第三方插件
-     *
-     * 需要从数据库中删除相关信息
-     */
-    public void uninstallPlugin(){
-
-    }
-
-    /**
-     * 升级某一个插件，包括宿主App的插件和独立第三方插件
-     */
-    public  void updatePlugin(){
-
-    }
     public static PackageManager getHostPm() {
         return hostPm;
     }
 
     public static ActivityManager getHostAms() {
         return hostAms;
+    }
+
+    public Context getHostContext(){
+        return  hostContext;
+    }
+
+    /**
+     * 下面这些服务无需hook,直接使用系统的即可
+     * @param serviceName
+     * @return
+     */
+    public static boolean useHostSystemService(String serviceName) {
+        if (Context.WIFI_SERVICE.equals(serviceName) || Context.LOCATION_SERVICE.equals(serviceName)
+                || Context.TELEPHONY_SERVICE.equals(serviceName)
+                || Context.CLIPBOARD_SERVICE.equals(serviceName)
+                || Context.INPUT_METHOD_SERVICE.equals(serviceName)) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 获取宿主的类加载器；
+     * 从逻辑上来说宿主的类加载器理应是插件加载器的父加载器
+     * 自定义的Plugin类加载器可能需要使用它加载一些系统和Host平台上的类(针对自有插件可能有此需求)
+     *
+     * TODO: 后续可能对于加载第三方App的classloader,不希望自己的父加载器是宿主,此处有可能调整
+     * @return
+     */
+    public ClassLoader getParentClassLoader() {
+        return getClass().getClassLoader();
     }
 
 }
