@@ -70,7 +70,7 @@ public class PluginModule {
                         PackageInfo packageInfo){
         this.hostContext = context;
         this.pluginPath  = pluginPath;
-        this.dataDir     =  pluginDataDir;
+        this.dataDir     = pluginDataDir;
         this.classLoader = pluginClassloader;
         this.packageInfo = packageInfo;
         /**

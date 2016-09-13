@@ -32,22 +32,20 @@ import io.realm.RealmResults;
  */
 public class PluginManager {
 
-    private static final String pluginInstallPath = "plugins";
-    private static final String pluginDataPath    = "pluginData";
-    private static final String defaultPlugins    = "defaultPlugins";
+
     private static String hostpath = null;
-
-
     private static Context hostContext     = null;
-
-
     private static PackageManager hostPm   = null;
     private static ActivityManager hostAms = null;
 
 
     private static PluginManager instance = null;
 
-    private PluginManager(){};
+    private PluginInstaller installer;
+
+    private PluginManager(){
+        installer = PluginInstaller.getInstance();
+    }
 
     public static PluginManager getInstance(){
         if(instance != null)
@@ -59,6 +57,8 @@ public class PluginManager {
     /**
      * 每个app进程中尽可能早的调用该方法进行初始化
      * @param context
+     *
+     * TODO: 添加从assets中默认插件目录中提取自有插件的逻辑
      */
     public void init(Context context){
 
@@ -86,17 +86,15 @@ public class PluginManager {
         /**
          * 检查所需的文件夹是否存在，不存在则创建
          */
-        File installPath = new File(hostpath+File.pathSeparator+pluginDataPath);
+        File installPath = new File(installer.getPluginInstallsDir());
         if(!installPath.exists())
             installPath.mkdir();
 
-        File dataPath = new File(hostpath+File.pathSeparator+pluginDataPath);
+        File dataPath = new File(installer.getPluginDatasDir());
         if(!dataPath.exists())
             dataPath.mkdir();
 
-        File defaultPath = new File(hostpath+File.pathSeparator+defaultPlugins);
-        if(!defaultPath.exists())
-            defaultPath.mkdir();
+        //从assets中提取自有插件
 
     }
 

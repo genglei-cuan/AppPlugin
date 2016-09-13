@@ -9,5 +9,9 @@ package com.cuan.plugincore.plugin.update;
  *
  * TODO:编写插件更新逻辑
  */
-public class RemotePluginInfo {
+public class RemotePluginInfo implements Comparable<RemotePluginInfo> {
+    @Override
+    public int compareTo(RemotePluginInfo o) {
+        return 0;
+    }
 }

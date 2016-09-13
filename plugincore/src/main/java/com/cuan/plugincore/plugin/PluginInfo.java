@@ -25,9 +25,12 @@ public class PluginInfo extends RealmObject {
     private long id;
     private String PackageName;
     private String pluginPath;
+    private String pluginDataDir;
+    private String libraryPath;
+    private String optimized;
     private int version;
     /**
-     * 资源的类型,比如说此资源是为了更新某个so库
+     * 资源的类型,比如说此资源是为了更新某个so库,可以通过metaData获取
      */
     private String type;
     /**
@@ -92,5 +95,29 @@ public class PluginInfo extends RealmObject {
 
     public void setPackageInfo(PackageInfo packageInfo) {
         this.packageInfo = packageInfo;
+    }
+
+    public String getPluginDataDir() {
+        return pluginDataDir;
+    }
+
+    public void setPluginDataDir(String pluginDataDir) {
+        this.pluginDataDir = pluginDataDir;
+    }
+
+    public String getLibraryPath() {
+        return libraryPath;
+    }
+
+    public void setLibraryPath(String libraryPath) {
+        this.libraryPath = libraryPath;
+    }
+
+    public String getOptimized() {
+        return optimized;
+    }
+
+    public void setOptimized(String optimized) {
+        this.optimized = optimized;
     }
 }

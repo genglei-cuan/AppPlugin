@@ -23,13 +23,14 @@ public class PluginConstants {
     /**
      * 插件安装目录和沙箱目录的文件夹常量
      */
-    public static final String DIR_TEMP_SO = "temp";
+    public static final String pluginInstallPath = "plugins";
+    public static final String pluginDataPath    = "pluginData";
+    public static final String defaultPlugins    = "defaultPlugins";
+    public static final String DATA = "data";
     public static final String DIR_DALVIK_CACHE = "dalvik-cache";
     public static final String DIR_NATIVE_LIB = "lib";
-    public static final String DIR_PLUGIN = "plugin";
-    public static final String FILE_PLUGIN_NAME = "base-1.apk";
-    public static final String EXT_TEMP_PLUGIN = ".apk";
     public static final String VERSION = "version";
+    public static final String FILE_PLUGIN_NAME = "base-1.apk";
 
     /**
      * 验证自有插件签名用的公钥
