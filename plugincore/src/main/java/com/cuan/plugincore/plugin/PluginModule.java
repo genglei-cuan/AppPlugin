@@ -19,6 +19,7 @@ import android.os.IBinder;
 
 import com.cuan.helper.log.LogUtil;
 import com.cuan.helper.reflect.Reflect;
+import com.cuan.plugincore.pluginmanager.PluginManager;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -49,7 +50,7 @@ public class PluginModule {
     private ClassLoader classLoader;
     private Resources   resources;
     private AssetManager assetManager;
-    private ActivityThread activityThread;
+    private ActivityThread hostActivityThread;
     private LoadedApk    loadedApk;
     // 四大组件的而信息,暂时只有Activity
     private Map<String, ActivityInfo> activityInfoMap = new HashMap<String, ActivityInfo>();
@@ -61,7 +62,7 @@ public class PluginModule {
      */
     private String      packageName;
     private String      pluginPath;     // 安装目录
-    private File        dataDir;        // 沙箱目录
+    private File        dataDir;        // 沙箱目录,常用所以为File
 
     public PluginModule(Context context,
                         String pluginPath,
@@ -73,6 +74,7 @@ public class PluginModule {
         this.dataDir     = pluginDataDir;
         this.classLoader = pluginClassloader;
         this.packageInfo = packageInfo;
+        hostActivityThread = PluginManager.getInstance().getActivityThread();
         /**
          * 创建资源管理器
          */
@@ -85,12 +87,12 @@ public class PluginModule {
 
     private void moduleInit() {
         packageName = packageInfo.packageName;
-        appInfo = (ApplicationInfo) parseApplicationInfo(hostContext, packageInfo, 	pluginPath, dataDir.getAbsolutePath());
+        appInfo = parseApplicationInfo(hostContext, packageInfo, 	pluginPath, dataDir.getAbsolutePath());
         themeResId = appInfo.theme;
         /**
          * 创建LoadedApk对象,并修改其mClassLoader
          */
-        loadedApk = activityThread.getPackageInfoNoCheck(appInfo,resources.getCompatibilityInfo());
+        loadedApk = hostActivityThread.getPackageInfoNoCheck(appInfo,resources.getCompatibilityInfo());
         Reflect.on(loadedApk).set("mClassLoader",classLoader);
 
         /**
@@ -116,6 +118,7 @@ public class PluginModule {
     private void createResources(String path) {
 
         AssetManager asset = new AssetManager();
+        assetManager = asset;
         asset.addAssetPath(path);
         Resources res = hostContext.getResources();
         resources = new Resources(assetManager, res.getDisplayMetrics(),
@@ -167,7 +170,7 @@ public class PluginModule {
 
         boolean hasApplication = true;
 
-        Instrumentation instrumentation = activityThread.getInstrumentation();
+        Instrumentation instrumentation = hostActivityThread.getInstrumentation();
 
         /**
          * 获取插件的Application class名字;
@@ -187,13 +190,13 @@ public class PluginModule {
         Class<?> cls = null;
         // Android 4.4.3及其之后的版本
         if(Build.VERSION.SDK_INT >= 21){
-            pluginContext = Reflect.on("android.app.ContextImpl").call("createAppContext",activityThread,loadedApk).get();
+            pluginContext = Reflect.on("android.app.ContextImpl").call("createAppContext",hostActivityThread,loadedApk).get();
         }else{
             try {
                 cls = Class.forName("android.app.ContextImpl");
                 Method method = cls.getDeclaredMethod("createAppContext",ActivityThread.class,LoadedApk.class);
                 method.setAccessible(true);
-                pluginContext = (Context) method.invoke(null,activityThread,loadedApk);
+                pluginContext = (Context) method.invoke(null,hostActivityThread,loadedApk);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } catch (NoSuchMethodException e) {
@@ -205,7 +208,7 @@ public class PluginModule {
                         pluginContext = (Context)constructor.newInstance();
                         Method method = cls.getDeclaredMethod("init",ActivityThread.class, IBinder.class,LoadedApk.class);
                         method.setAccessible(true);
-                        method.invoke(pluginContext,loadedApk,null,activityThread);
+                        method.invoke(pluginContext,loadedApk,null,hasApplication);
                     }
                 }catch (Exception ee){
 
@@ -309,4 +312,5 @@ public class PluginModule {
     public ApplicationInfo getApplicationInfo() {
         return appInfo;
     }
+
 }

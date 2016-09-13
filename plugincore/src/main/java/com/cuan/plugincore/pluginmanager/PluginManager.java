@@ -6,6 +6,7 @@ package com.cuan.plugincore.pluginmanager;
  */
 
 import android.app.ActivityManager;
+import android.app.ActivityThread;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import com.cuan.helper.log.LogUtil;
+import com.cuan.plugincore.plugin.Plugin;
 import com.cuan.plugincore.plugin.PluginInfo;
 
 import io.realm.Realm;
@@ -37,9 +39,8 @@ public class PluginManager {
     private static Context hostContext     = null;
     private static PackageManager hostPm   = null;
     private static ActivityManager hostAms = null;
-
-
-    private static PluginManager instance = null;
+    private ActivityThread activityThread  = null;
+    private static PluginManager instance  = null;
 
     private PluginInstaller installer;
 
@@ -99,12 +100,35 @@ public class PluginManager {
     }
 
     /**
-     * 从数据库中查询之前安装的插件信息,并安装
-     *
-     * 需要在数据库中做好记录:包名,版本号,插件apk路径
+     * 从数据库中查询之前安装的插件信息,并解析
      */
     public void loadPlugins(){
+        ArrayList<PluginInfo> exceptionBundles = new ArrayList<PluginInfo>(30);
 
+        // 得到之前安装的插件信息
+        Realm realm = Realm.getInstance(hostContext);
+        RealmResults<PluginInfo> infos = realm.where(PluginInfo.class).findAll();
+
+        if (infos != null && infos.size() > 0) {
+            for (PluginInfo info : infos) {
+                File pluginPathFile = new File(info.getPluginPath());
+                // 安装文件丢失
+                if (!pluginPathFile.exists()) {
+                    LogUtil.e("[loadPlugins] exception bundle:" + info.getPackageName());
+                    exceptionBundles.add(info);
+                    continue;
+                }
+
+                Plugin plugin = new Plugin(PluginUtils.makePluginInfoFromRealm(info));
+                installer.loadPlugin(info.getPackageName(),plugin);
+            }
+        }
+
+        // 清除掉数据库的残留信息
+        for (PluginInfo info : exceptionBundles) {
+            removePluginInfo(info);
+        }
+        realm.close();
     }
 
     public static PackageManager getHostPm() {
@@ -145,4 +169,10 @@ public class PluginManager {
         return getClass().getClassLoader();
     }
 
+    public ActivityThread getActivityThread() {
+        if (activityThread == null) {
+            activityThread = ActivityThread.currentActivityThread();
+        }
+        return activityThread;
+    }
 }

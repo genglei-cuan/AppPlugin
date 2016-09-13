@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.Signature;
 import android.os.Parcel;
+import android.text.TextUtils;
 
 import com.cuan.helper.parcel.ParcelableUtils;
 import com.cuan.plugincore.plugin.PluginClassloader;
@@ -28,12 +29,20 @@ import io.realm.RealmQuery;
 public class Plugin {
 
 
+    private String packageName;
+    private String type;// 自有插件的类型
     private PluginInfo pluginInfo;
-    private PluginModule pluginModule;
+    private PluginModule pluginModule;//大型数据结构,不使用时要及时释放
     private PluginClassloader pluginClassloader;
 
+    /**
+     * 创建Plugin对象时,PluginInfo是必须要有的;
+     * @param info
+     */
     public Plugin(PluginInfo info){
         this.pluginInfo  = info;
+        type = info.getType();
+        packageName = info.getPackageName();
     }
 
     public PluginModule getPluginModule() {
@@ -69,8 +78,8 @@ public class Plugin {
     }
 
     /**
-     * 获取PackageInfo信息
-     * 如果在数据库中未保存有PackageInfo (Parcelable对像)，则从APK文件解析，并转换为byte[]保存入数据库。
+     * 从数据库中获取PackageInfo信息
+     * 如果在数据库中未保存有PackageInfo那么从APK文件解析,此种情况正常时,应该不会发生
      */
     private PackageInfo getPackageInfo(PluginInfo pluginInfo) {
         PackageInfo packageInfo = null;
@@ -101,9 +110,10 @@ public class Plugin {
                 if (!isSignaturesSame(signature,  signatures[0])){
 
                 }*/
-                RelamUtil.saveSignatureInfo(pluginInfo, signatures[0], realm);
+                RelamUtil.saveSignatureInfo(pluginInfo, realm);
             }
-            RelamUtil.savePackageInfo(pluginInfo, packageInfo, realm);
+            RelamUtil.savePackageInfo(pluginInfo,realm);
+            realm.close();
         }
 
         realm.close();
@@ -111,10 +121,49 @@ public class Plugin {
     }
 
     public PluginClassloader getPluginClassloader() {
+        if(null == pluginClassloader){
+            String apkPath = pluginInfo.getPluginPath();
+            String libraryPath = pluginInfo.getLibraryPath();
+            String optimized = pluginInfo.getOptimized();
+            /**
+             * 宿主的classloader
+             */
+            ClassLoader parent = PluginManager.getInstance().getParentClassLoader();
+            /**
+             * 首次会执行dex2oat操作,是一个耗时操作,当产生了oat文件后,下一次会快很多
+             */
+            pluginClassloader = new PluginClassloader(apkPath, optimized, libraryPath, parent);
+        }
         return pluginClassloader;
     }
 
     public void setPluginClassloader(PluginClassloader pluginClassloader) {
         this.pluginClassloader = pluginClassloader;
     }
+
+    private static boolean isSignaturesSame(String s1, Signature s2) {
+        if (TextUtils.isEmpty(s1))
+            return false;
+        if (s2 == null)
+            return false;
+        String item = s2.toCharsString().toLowerCase();
+        if (item.equalsIgnoreCase(s1))
+            return true;
+        return false;
+    }
+    public void releasePluginModule() {
+        if (pluginModule != null) {
+            pluginModule = null;
+        }
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+
 }

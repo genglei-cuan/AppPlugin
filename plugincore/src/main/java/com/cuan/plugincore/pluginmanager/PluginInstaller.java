@@ -7,18 +7,12 @@ package com.cuan.plugincore.pluginmanager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.Signature;
-import android.os.Parcel;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.cuan.helper.log.LogUtil;
-import com.cuan.helper.parcel.ParcelableUtils;
 import com.cuan.plugincore.plugin.Plugin;
-import com.cuan.plugincore.plugin.PluginClassloader;
 import com.cuan.plugincore.plugin.PluginInfo;
-import com.cuan.plugincore.plugin.PluginModule;
-import com.cuan.plugincore.plugin.PluginPackageInfo;
-import com.cuan.plugincore.plugin.PluginSignatureInfo;
+
 
 
 import java.io.File;
@@ -26,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.realm.Realm;
-import io.realm.RealmQuery;
 
 /**
  * 插件安装器,提供插件的安装,更新和卸载策略。
@@ -55,6 +48,15 @@ public class PluginInstaller {
 
     public void init(Context context){
         this.hostContext = context;
+    }
+
+    /**
+     * 仅仅供从数据库装载时使用
+     * @param packageName
+     * @param plugin
+     */
+    public void loadPlugin(String packageName,Plugin plugin){
+        installedPlugins.put(packageName,plugin);
     }
     /**
      * 所有插件apk的根目录:
@@ -90,32 +92,9 @@ public class PluginInstaller {
     public String getPluginDataDir(@NonNull String pluginPackageName) {
         return getPluginDatasDir() + File.separator + pluginPackageName;
     }
-    /**
-     *
-     * @param pluginPackageName 插件包名
-     * @param pluginVersion 插件版本号
-     * @return true:已经安装;false:没有安装
-     *
-     * TODO:当插件在系统中安装了呢? 例如lbe平行空间对系统中已经安装的app的双开的实现。
-     */
-    public boolean isPluginInstalled(String pluginPackageName, String pluginVersion) {
-        if (PluginConstants.ignoreInstalledPlugin) {
-            // 后续添加其他逻辑
-           return false;
-        }
-        return checkPluginValid(pluginPackageName, pluginVersion, true);
-    }
-
-    public boolean isPluginInstalled(String pluginPath) {
-        if (PluginConstants.ignoreInstalledPlugin) {
-            // 强制使用外部插件
-            return false;
-        }
-        PluginInfo packageInfo = getPluginInfo(pluginPath);
-        return packageInfo != null && checkPluginValid(packageInfo.packageName, String.valueOf(packageInfo.versionCode), true);
-    }
 
     /**
+     * 分析apk文件,构建PluginInfo
      *
      * @param pluginPath
      * @param isSelfPlugin 是否是自有插件
@@ -155,12 +134,15 @@ public class PluginInstaller {
     }
 
     /**
-     * 安装插件,不包含版本比对的逻辑,即升级安装
+     * 安装插件
      * 1. 解析apk
-     * 2. 创建安装目录和沙箱目录
-     * 3. 拷贝apk到安装目录并解压so库到沙箱目录
-     * 4. 保存pluginInfo到数据库
-     * 5. 保存packageInfo到数据库
+     * 2. 处理覆盖安装情况:升级与降级
+     * 3. 创建安装目录和沙箱目录
+     * 4. 拷贝apk到安装目录并解压so库到沙箱目录
+     * 5. 保存pluginInfo到数据库
+     * 6. 保存packageInfo到数据库
+     * 7. 创建插件的classloader,目的是为了执行dex2oat,提高下次再创建classloader的效率
+     *
      * @param apkFilePath 插件apk路径
      */
     public boolean installPlugin(final String apkFilePath,final boolean isSelfPlugin){
@@ -176,8 +158,14 @@ public class PluginInstaller {
         String packageName = pluginInfo.getPackageName();
         Plugin plugin = installedPlugins.get(packageName);
         if(null != plugin){
-            //TODO: 如何向宿主App提示呢?通过Handler?
-            return true;
+            //已经安装的插件版本更高,那就不处理,即不支持降级安装
+            if(plugin.getPluginInfo().getVersion()>pluginInfo.getVersion())
+                //TODO: 如何向宿主App提示呢?通过Handler?
+                return true;
+            else{
+                //TODO: 升级安装
+                return true;
+            }
         }
 
         long pluginId = generatePluginId();
@@ -238,6 +226,10 @@ public class PluginInstaller {
          * 将pluginInfo保存到数据库中的同时也会将签名和packageInfo保存到数据库中
          */
         RelamUtil.saveBundleInfo(pluginInfo,Realm.getInstance(hostContext));
+        /**
+         * 是一个耗时的操作
+         */
+        newPlugin.getPluginClassloader();
         return true;
     }
 
@@ -245,6 +237,7 @@ public class PluginInstaller {
      * 异步安装一个插件
      * @param apkPath
      * @param isSelfPlugin
+     * TODO: 是否要为installer创建一个looper消息处理循环呢?
      */
     public void asyncInstallPlugin(final String apkPath,final boolean isSelfPlugin) {
         new Thread(new Runnable() {
@@ -287,17 +280,6 @@ public class PluginInstaller {
     }
 
 
-
-    public static boolean isSignaturesSame(String s1, Signature s2) {
-        if (TextUtils.isEmpty(s1))
-            return false;
-        if (s2 == null)
-            return false;
-        String item = s2.toCharsString().toLowerCase();
-        if (item.equalsIgnoreCase(s1))
-            return true;
-        return false;
-    }
 
     /**
      * Realm数据库主见不能自增,这里同步产生一个id;

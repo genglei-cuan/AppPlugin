@@ -325,4 +325,18 @@ public class PluginUtils {
             throw new PluginException(PluginException.ERROR_CODE_COPY_FILE_SO, e.getMessage());
         }
     }
+
+
+    public static PluginInfo makePluginInfoFromRealm(PluginInfo info) {
+        PluginInfo newInfo = new PluginInfo();
+        newInfo.setId(info.getId());
+        newInfo.setVersion(info.getVersion());
+        newInfo.setPackageName(info.getPackageName());
+        newInfo.setPluginPath(info.getPluginPath());
+        newInfo.setPluginDataDir(info.getPluginDataDir());
+        newInfo.setType(info.getType());
+        newInfo.setLibraryPath(info.getLibraryPath());
+        newInfo.setSelfPlugin(info.isSelfPlugin());
+        return newInfo;
+    }
 }

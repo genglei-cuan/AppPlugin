@@ -33,6 +33,8 @@ public class PluginInfo extends RealmObject {
      * 资源的类型,比如说此资源是为了更新某个so库,可以通过metaData获取
      */
     private String type;
+
+
     /**
      * 该资源是自有插件还是第三方app
      */
@@ -81,11 +83,12 @@ public class PluginInfo extends RealmObject {
         this.type = type;
     }
 
-    public boolean isSelfPlugin() {
+    public boolean getIsSelfPlugin() {
         return isSelfPlugin;
     }
 
-    public void setSelfPlugin(boolean selfPlugin) {
+
+    public void setIsSelfPlugin(boolean selfPlugin) {
         isSelfPlugin = selfPlugin;
     }
 
