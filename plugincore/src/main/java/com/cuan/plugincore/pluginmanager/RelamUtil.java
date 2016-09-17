@@ -9,6 +9,7 @@ import com.cuan.plugincore.plugin.PluginPackageInfo;
 import com.cuan.plugincore.plugin.PluginSignatureInfo;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  * Created by genglei-cuan on 16-9-13.
@@ -57,6 +58,26 @@ public class RelamUtil {
         realm.commitTransaction();
         savePackageInfo(info,realm);
         saveSignatureInfo(info,realm);
+        realm.close();
+    }
+    public static synchronized void removePluginInfo(PluginInfo info,Realm realm) {
+        if (info == null) {
+            return;
+        }
+        RealmResults<PluginInfo> results = realm.where(PluginInfo.class).equalTo("packageName", info.getPackageName()).findAll();
+        RealmResults<PluginSignatureInfo> signatureInfos = realm.where(PluginSignatureInfo.class).equalTo("packageName",info.getPackageName()).findAll();
+        RealmResults<PluginPackageInfo> packageInfos = realm.where(PluginPackageInfo.class).equalTo("packageName", info.getPackageName()).findAll();
+        realm.beginTransaction();
+        if (results != null && results.size() > 0) {
+            results.clear();
+        }
+        if(signatureInfos != null && signatureInfos.size()>0){
+            signatureInfos.clear();
+        }
+        if (packageInfos != null && packageInfos.size() > 0) {
+            packageInfos.clear();
+        }
+        realm.commitTransaction();
         realm.close();
     }
 

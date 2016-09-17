@@ -13,12 +13,17 @@ public class PluginConstants {
     /**
      * 调试开关
      */
-    public static boolean DEBUG = false;
+    public static boolean DEBUG = true;
 
     /**
      * 是否忽略内部安装的插件,而使用外部系统中安装的插件(当独立插件在系统中正常安装后)
      */
     public static boolean ignoreInstalledPlugin = false;
+
+    /**
+     * 用于存储异常插件信息的数组元素数量
+     */
+    public static final int maxExceptionNums = 20;
 
     /**
      * 插件安装目录和沙箱目录的文件夹常量

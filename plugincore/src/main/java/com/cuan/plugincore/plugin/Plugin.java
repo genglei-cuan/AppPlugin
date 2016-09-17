@@ -25,6 +25,10 @@ import io.realm.RealmQuery;
 
 /**
  * 代表一个插件
+ *
+ * 一个插件中的信息可以分为两大类:
+ * 1. 静态信息:PluginInfo
+ * 2. 动态信息:PluginModule,也可理解为运行时信息
  */
 public class Plugin {
 
@@ -36,7 +40,7 @@ public class Plugin {
     private PluginClassloader pluginClassloader;
 
     /**
-     * 创建Plugin对象时,PluginInfo是必须要有的;
+     * 以静态信息PluginInfo来创建一个Plugin
      * @param info
      */
     public Plugin(PluginInfo info){
@@ -68,10 +72,6 @@ public class Plugin {
         }
       return pluginModule;
     }
-    public void setPluginModule(PluginModule pluginModule) {
-        this.pluginModule = pluginModule;
-    }
-
 
     public PluginInfo getPluginInfo() {
         return pluginInfo;
@@ -96,6 +96,7 @@ public class Plugin {
                 e.printStackTrace();
             }
         }
+
         // 从APK文件解析出PackageInfo，并存入数据库中
         if (packageInfo == null) {
             packageInfo =  PluginUtils.parseApk(hostContext, pluginInfo.getPluginPath());

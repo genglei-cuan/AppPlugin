@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.Signature;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.cuan.helper.log.LogUtil;
 import com.cuan.plugincore.plugin.Plugin;
@@ -64,7 +65,7 @@ public class PluginInstaller {
      * 宿主沙箱目录/plugins
      */
     public String getPluginInstallsDir() {
-        return hostContext.getFilesDir().getParent()+File.pathSeparator+PluginConstants.pluginInstallPath;
+        return hostContext.getFilesDir().getParent()+File.separator+PluginConstants.pluginInstallPath;
     }
 
     /**
@@ -81,7 +82,7 @@ public class PluginInstaller {
      * 宿主沙箱目录/pluginData
      */
     public String getPluginDatasDir() {
-        return hostContext.getFilesDir().getParent()+File.pathSeparator+PluginConstants.pluginDataPath;
+        return hostContext.getFilesDir().getParent()+File.separator+PluginConstants.pluginDataPath;
     }
 
     /**
@@ -119,7 +120,7 @@ public class PluginInstaller {
             info = new PluginInfo();
             info.setPackageName(packageInfo.packageName);
             info.setVersion(packageInfo.versionCode);
-            info.setSelfPlugin(isSelfPlugin);
+            info.setIsSelfPlugin(isSelfPlugin);
             android.os.Bundle metaData = packageInfo.applicationInfo.metaData;
             if (isSelfPlugin && metaData != null) {
                 /**
@@ -184,12 +185,12 @@ public class PluginInstaller {
          * 当插件成功更新后,删除旧版本即可.
          */
 
-        String pluginInstallDir = getPluginInstallDir(pluginInfo.getPackageName())+File.pathSeparator+
+        String pluginInstallDir = getPluginInstallDir(pluginInfo.getPackageName())+File.separator+
                                   PluginConstants.VERSION+pluginInfo.getVersion();
         File installDir = new File(pluginInstallDir);
         if(!installDir.exists())
             installDir.mkdirs();
-        String pluginInstallPath = pluginInstallDir+File.pathSeparator+PluginConstants.FILE_PLUGIN_NAME;
+        String pluginInstallPath = pluginInstallDir+File.separator+PluginConstants.FILE_PLUGIN_NAME;
         pluginInfo.setPluginPath(pluginInstallPath);
         /**
          * 创建插件沙箱目录,包括lib目录,dex目录
@@ -201,13 +202,13 @@ public class PluginInstaller {
             dataDir.mkdir();
         pluginInfo.setPluginDataDir(pluginDataDir);
 
-        String libraryPath = pluginDataDir +File.pathSeparator + PluginConstants.DIR_NATIVE_LIB;
+        String libraryPath = pluginDataDir +File.separator + PluginConstants.DIR_NATIVE_LIB;
         File libDir = new File(libraryPath);
         if(!libDir.exists())
             libDir.mkdir();
         pluginInfo.setLibraryPath(libraryPath);
 
-        String optimized = pluginDataDir + File.pathSeparator + PluginConstants.DIR_DALVIK_CACHE;
+        String optimized = pluginDataDir + File.separator + PluginConstants.DIR_DALVIK_CACHE;
         File dexDir = new File(optimized);
         if(!dexDir.exists())
             dexDir.mkdir();
@@ -254,8 +255,27 @@ public class PluginInstaller {
      *
      * 需要从数据库中删除相关信息
      */
-    public void uninstallPlugin(){
-
+    public void asyncUnInstallPlugin(final Plugin plugin) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String packageName = plugin.getPackageName();
+                if (TextUtils.isEmpty(packageName)) {
+                    return;
+                }
+                plugin.releasePluginModule(); //释放PluginModule
+                /**
+                 * 删除安装目录,并从数据库中移除相关信息
+                 * TODO: 插件沙箱目录需要删除吗??
+                 */
+                String installPath = plugin.getPluginInfo().getPluginPath();
+                File pluginApk = new File(installPath);
+                if(!pluginApk.isDirectory()&&pluginApk.exists())
+                    pluginApk.delete();
+                RelamUtil.removePluginInfo(plugin.getPluginInfo(),Realm.getInstance(hostContext));
+                installedPlugins.remove(packageName);
+            }
+        }).start();
     }
 
     /**

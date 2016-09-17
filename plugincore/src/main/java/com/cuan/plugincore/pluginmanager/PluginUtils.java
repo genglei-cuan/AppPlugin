@@ -336,7 +336,7 @@ public class PluginUtils {
         newInfo.setPluginDataDir(info.getPluginDataDir());
         newInfo.setType(info.getType());
         newInfo.setLibraryPath(info.getLibraryPath());
-        newInfo.setSelfPlugin(info.isSelfPlugin());
+        newInfo.setIsSelfPlugin(info.getIsSelfPlugin());
         return newInfo;
     }
 }

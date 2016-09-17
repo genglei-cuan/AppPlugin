@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import com.cuan.helper.log.LogUtil;
 import com.cuan.plugincore.plugin.Plugin;
 import com.cuan.plugincore.plugin.PluginInfo;
+import com.cuan.plugincore.plugin.PluginPackageInfo;
+import com.cuan.plugincore.plugin.PluginSignatureInfo;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -81,6 +83,12 @@ public class PluginManager {
         if(hostAms == null)
             hostAms = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
 
+        /**
+         * 初始化install
+         */
+        installer =  PluginInstaller.getInstance();
+        installer.init(context);
+
         if(hostpath == null)
             hostpath = context.getFilesDir().getParent();
         LogUtil.i("hostPath: %s",hostpath);
@@ -100,12 +108,47 @@ public class PluginManager {
     }
 
     /**
-     * 从数据库中查询之前安装的插件信息,并解析
+     * 安装一个插件
+     * @param apkFilePath
+     * @param isSelfPlugin
+     */
+    public void installPlugin(final String apkFilePath,final boolean isSelfPlugin){
+        if(installer == null){
+            installer = PluginInstaller.getInstance();
+            installer.init(hostContext);
+        }
+        installer.installPlugin(apkFilePath,isSelfPlugin);
+    }
+    public void asyncInstallPlugin(final String apkFilePath,final boolean isSelfPlugin){
+        if(installer == null){
+            installer = PluginInstaller.getInstance();
+            installer.init(hostContext);
+        }
+        installer.asyncInstallPlugin(apkFilePath,isSelfPlugin);
+    }
+
+    /**
+     * 以异步方式卸载一个插件(并没有删除沙箱目录)
+     * @param plugin
+     */
+    public void asyncUnInstallPlugin(final Plugin plugin){
+        if(installer == null){
+            installer = PluginInstaller.getInstance();
+            installer.init(hostContext);
+        }
+        installer.asyncUnInstallPlugin(plugin);
+    }
+    /**
+     * 从数据库中查询之前安装的插件信息,并解析;
+     * 同时将安装文件丢失的(即apk文件丢失)的插件信息
+     * 从相关数据库中移除。
      */
     public void loadPlugins(){
-        ArrayList<PluginInfo> exceptionBundles = new ArrayList<PluginInfo>(30);
 
-        // 得到之前安装的插件信息
+        //用于存放异常插件
+        ArrayList<PluginInfo> exceptionPlugins = new ArrayList<PluginInfo>(PluginConstants.maxExceptionNums);
+
+        // 从数据库中读取之前安装的插件信息
         Realm realm = Realm.getInstance(hostContext);
         RealmResults<PluginInfo> infos = realm.where(PluginInfo.class).findAll();
 
@@ -114,19 +157,22 @@ public class PluginManager {
                 File pluginPathFile = new File(info.getPluginPath());
                 // 安装文件丢失
                 if (!pluginPathFile.exists()) {
-                    LogUtil.e("[loadPlugins] exception bundle:" + info.getPackageName());
-                    exceptionBundles.add(info);
+                    LogUtil.e("[loadPlugins:] exception bundle: %s",info.getPackageName());
+                    exceptionPlugins.add(info);
                     continue;
                 }
-
+                // 创建Plugin对象
                 Plugin plugin = new Plugin(PluginUtils.makePluginInfoFromRealm(info));
+                if(PluginConstants.DEBUG)
+                    LogUtil.d("[loadPlugin:] %s",plugin.getPackageName());
+                // 加载plugin
                 installer.loadPlugin(info.getPackageName(),plugin);
             }
         }
 
         // 清除掉数据库的残留信息
-        for (PluginInfo info : exceptionBundles) {
-            removePluginInfo(info);
+        for (PluginInfo info : exceptionPlugins) {
+            RelamUtil.removePluginInfo(info,Realm.getInstance(hostContext));
         }
         realm.close();
     }
@@ -175,4 +221,5 @@ public class PluginManager {
         }
         return activityThread;
     }
+
 }
