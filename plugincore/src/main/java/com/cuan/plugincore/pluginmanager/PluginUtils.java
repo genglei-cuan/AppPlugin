@@ -6,7 +6,10 @@ package com.cuan.plugincore.pluginmanager;
  */
 
 import android.annotation.TargetApi;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -14,6 +17,7 @@ import android.os.Build;
 
 import com.cuan.helper.log.LogUtil;
 import com.cuan.helper.reflect.Reflect;
+import com.cuan.plugincore.plugin.Plugin;
 import com.cuan.plugincore.plugin.PluginException;
 import com.cuan.plugincore.plugin.PluginInfo;
 
@@ -327,6 +331,12 @@ public class PluginUtils {
     }
 
 
+    /**
+     * 以数据库中存储的PluginInfo对象信息,新建一个PluginInfo对象;
+     * 注意此时PluginInfo.packageInfo为null,还没初始化
+     * @param info
+     * @return
+     */
     public static PluginInfo makePluginInfoFromRealm(PluginInfo info) {
         PluginInfo newInfo = new PluginInfo();
         newInfo.setId(info.getId());
@@ -339,4 +349,30 @@ public class PluginUtils {
         newInfo.setIsSelfPlugin(info.getIsSelfPlugin());
         return newInfo;
     }
+    /**
+     * 获取封装后的指向ProxyActivity容器的Intent
+     */
+    public static Intent getActivityStubIntent(Intent targetiIntent) {
+        Intent stubIntent = null;
+        Plugin plugin = null;
+        // 获取启动的目标activity组件名字
+        ComponentName componentName = targetiIntent.getComponent();
+        if (componentName != null) {
+            String packageName = componentName.getPackageName();
+            plugin = PluginManager.getInstance().getPluginByPackageName(packageName);
+        }
+        if (plugin != null) {
+            int launchMode = plugin.getPluginModule().getActivityLaunchMode(componentName.getClassName());
+            /**
+             * 根据targetActivity的启动模式,适当修改启动flags
+             * TODO:添加插件activity的task管理与调度
+             */
+
+        } else {
+            // 调用平台外部的Activity
+            stubIntent = targetiIntent;
+        }
+        return stubIntent;
+    }
+
 }

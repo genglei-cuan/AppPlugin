@@ -24,6 +24,7 @@ import io.realm.Realm;
 
 /**
  * 插件安装器,提供插件的安装,更新和卸载策略。
+ * TODO:后续对该类的访问权限进行调整,使其中的方法访问权限降低为包权限
  */
 public class PluginInstaller {
 
@@ -324,5 +325,14 @@ public class PluginInstaller {
         }
         realm.close();
         return id;
+    }
+
+    /**
+     * 以包名获取对应的plugin
+     * @param packageName
+     * @return
+     */
+    Plugin getPluginByPackageName(String packageName) {
+        return installedPlugins.get(packageName);
     }
 }

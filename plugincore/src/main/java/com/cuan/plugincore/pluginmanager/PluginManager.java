@@ -44,10 +44,9 @@ public class PluginManager {
     private ActivityThread activityThread  = null;
     private static PluginManager instance  = null;
 
-    private PluginInstaller installer;
+    private volatile PluginInstaller installer;
 
     private PluginManager(){
-        installer = PluginInstaller.getInstance();
     }
 
     public static PluginManager getInstance(){
@@ -223,4 +222,16 @@ public class PluginManager {
         return activityThread;
     }
 
+    /**
+     * 以包名获取对于的plugin
+     * @param packageName
+     * @return
+     */
+    public Plugin getPluginByPackageName(String packageName) {
+        if(installer == null){
+            installer = PluginInstaller.getInstance();
+            installer.init(hostContext);
+        }
+        return installer.getPluginByPackageName(packageName);
+    }
 }
