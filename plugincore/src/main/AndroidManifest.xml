@@ -5,7 +5,11 @@
         android:allowBackup="true"
         android:label="@string/app_name"
         android:supportsRtl="true">
-
+        <provider
+            android:authorities="com.cuan.plugincore.servicemanager.ServiceManagerProvider"
+            android:name=".servicemanager.ServiceManagerProvider"
+            android:exported="false"
+            android:process=":sm"/>
     </application>
 
 </manifest>

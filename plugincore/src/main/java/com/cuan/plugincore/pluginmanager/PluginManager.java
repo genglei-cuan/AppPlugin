@@ -61,7 +61,8 @@ public class PluginManager {
      * 每个app进程中尽可能早的调用该方法进行初始化
      * @param context
      *
-     * TODO: 添加从assets中默认插件目录中提取自有插件的逻辑
+     * TODO: 添加宿主进程启动时从assets中默认插件目录中提取自有插件的逻辑
+     * TODO: 该方法应该保证在Application对象中执行,如何保证呢?
      */
     public void init(Context context){
 
