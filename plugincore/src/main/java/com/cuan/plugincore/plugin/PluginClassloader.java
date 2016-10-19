@@ -9,9 +9,7 @@ import dalvik.system.DexClassLoader;
  */
 
 /**
- * 加载插件的Classloader
- *
- * TODO: 为了更好的模拟一个插件在真实系统中的运行环境,后续可考虑更改为继承PathClassLoader,也能提高插件运行的兼容性
+ * 加载插件的Classloader:加载类和so库
  *
  * TODO: 对于自有的插件当自身找到不某类的时候,可以允许其从宿主和系统加载器中查找,这样可以减少自有插件的大小,但是这样的自有插件是无法独立安装运行;
  *        对于第三方App来说,按找正常逻辑不应该允许其从宿主中查找类,
@@ -69,5 +67,10 @@ public class PluginClassloader extends DexClassLoader {
             LogUtil.e("PluginClassLoader Can't find class: " + className);
         }
         return clazz;
+    }
+
+    @Override
+    public String findLibrary(String name) {
+        return super.findLibrary(name);
     }
 }

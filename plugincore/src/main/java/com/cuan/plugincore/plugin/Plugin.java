@@ -20,6 +20,7 @@ import com.cuan.plugincore.pluginmanager.RelamUtil;
 
 import java.io.File;
 
+import dalvik.system.PathClassLoader;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 
@@ -37,7 +38,7 @@ public class Plugin {
     private String type;// 自有插件的类型
     private PluginInfo pluginInfo;
     private PluginModule pluginModule;//大型数据结构,不使用时要及时释放
-    private PluginClassloader pluginClassloader;
+    private PluginClassLoaderDelegate pluginClassloader;
 
     /**
      * 以静态信息PluginInfo来创建一个Plugin
@@ -121,7 +122,7 @@ public class Plugin {
         return packageInfo;
     }
 
-    public PluginClassloader getPluginClassloader() {
+    public PathClassLoader getPluginClassloader() {
         if(null == pluginClassloader){
             String apkPath = pluginInfo.getPluginPath();
             String libraryPath = pluginInfo.getLibraryPath();
@@ -133,12 +134,12 @@ public class Plugin {
             /**
              * 首次会执行dex2oat操作,是一个耗时操作,当产生了oat文件后,下一次会快很多
              */
-            pluginClassloader = new PluginClassloader(apkPath, optimized, libraryPath, parent);
+            pluginClassloader = new PluginClassLoaderDelegate(apkPath, optimized, libraryPath, parent);
         }
         return pluginClassloader;
     }
 
-    public void setPluginClassloader(PluginClassloader pluginClassloader) {
+    public void setPluginClassloader(PluginClassLoaderDelegate pluginClassloader) {
         this.pluginClassloader = pluginClassloader;
     }
 

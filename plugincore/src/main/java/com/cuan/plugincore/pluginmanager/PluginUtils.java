@@ -369,7 +369,9 @@ public class PluginUtils {
              */
 
         } else {
-            // 调用平台外部的Activity
+            /**
+             * 此时尝试在系统中安装的app中寻找要启动的组件
+             */
             stubIntent = targetiIntent;
         }
         return stubIntent;

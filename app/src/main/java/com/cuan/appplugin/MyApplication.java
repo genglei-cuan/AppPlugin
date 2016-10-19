@@ -21,6 +21,6 @@ public class MyApplication extends Application {
         pluginManager = PluginManager.getInstance();
         pluginManager.init(this);
         pluginManager.loadPlugins();
-        pluginManager.asyncInstallPlugin("/data/local/tmp/com.immomo.momo_7.0.1_857.apk",false);
+        pluginManager.installPlugin("/data/local/tmp/app-debug.apk",false);
     }
 }

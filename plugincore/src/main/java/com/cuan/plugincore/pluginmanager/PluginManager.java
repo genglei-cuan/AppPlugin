@@ -84,7 +84,8 @@ public class PluginManager {
             hostAms = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
 
         /**
-         * 初始化install
+         * 初始化installer
+         * TODO:单独进程？
          */
         installer =  PluginInstaller.getInstance();
         installer.init(context);
