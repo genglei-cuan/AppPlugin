@@ -1,5 +1,8 @@
 package com.cuan.plugincore.plugin;
 
+import java.net.URL;
+import java.util.Enumeration;
+
 import dalvik.system.PathClassLoader;
 
 /**
@@ -28,6 +31,21 @@ public class PluginClassLoaderDelegate extends PathClassLoader {
 
     @Override
     public String findLibrary(String name) {
-        return super.findLibrary(name);
+        return pluginLoader.findLibrary(name);
+    }
+
+    @Override
+    protected URL findResource(String name) {
+        return pluginLoader.findResource(name);
+    }
+
+    @Override
+    protected Enumeration<URL> findResources(String name) {
+        return pluginLoader.findResources(name);
+    }
+
+    @Override
+    public String toString() {
+        return pluginLoader.toString();
     }
 }

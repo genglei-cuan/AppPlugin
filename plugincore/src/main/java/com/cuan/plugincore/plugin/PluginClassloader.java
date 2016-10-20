@@ -2,6 +2,9 @@ package com.cuan.plugincore.plugin;
 
 import com.cuan.helper.log.LogUtil;
 
+import java.net.URL;
+import java.util.Enumeration;
+
 import dalvik.system.DexClassLoader;
 
 /**
@@ -72,5 +75,21 @@ public class PluginClassloader extends DexClassLoader {
     @Override
     public String findLibrary(String name) {
         return super.findLibrary(name);
+    }
+
+    @Override
+    protected URL findResource(String name) {
+        return super.findResource(name);
+    }
+
+    @Override
+    protected Enumeration<URL> findResources(String name) {
+        return super.findResources(name);
+    }
+
+
+    @Override
+    public String toString() {
+        return "[-->plugin classloader:" + super.toString() + "]";
     }
 }

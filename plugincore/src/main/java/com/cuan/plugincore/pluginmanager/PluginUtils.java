@@ -347,6 +347,7 @@ public class PluginUtils {
         newInfo.setType(info.getType());
         newInfo.setLibraryPath(info.getLibraryPath());
         newInfo.setIsSelfPlugin(info.getIsSelfPlugin());
+        newInfo.setOptimized(info.getOptimized());
         return newInfo;
     }
     /**

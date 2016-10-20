@@ -13,10 +13,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Plugin plugin = PluginManager.getInstance().getPluginByPackageName("com.cuan.plugintest");
+        Plugin plugin = PluginManager.getInstance().getPluginByPackageName("com.cuan.testplugin");
         ClassLoader loader = plugin.getPluginClassloader();
         try {
-            loader.loadClass("com.cuan.plugintest.MainActivity");
+            loader.loadClass("com.cuan.testplugin.MainActivity");
+            android.util.Log.i("shajia","--loader: "+loader);
             android.util.Log.i("shajia","--: find class!!!");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

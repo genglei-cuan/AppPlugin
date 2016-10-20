@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/hiddenapistubs" />
             <option value="$PROJECT_DIR$/plugincore" />
+            <option value="$PROJECT_DIR$/testplugin" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

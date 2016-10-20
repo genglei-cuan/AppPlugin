@@ -21,6 +21,6 @@ public class MyApplication extends Application {
         pluginManager = PluginManager.getInstance();
         pluginManager.init(this);
         pluginManager.loadPlugins();
-        pluginManager.installPlugin("/data/local/tmp/app-debug.apk",false);
+        pluginManager.installPlugin("/data/local/tmp/testplugin-debug.apk",false);
     }
 }

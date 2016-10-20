@@ -10,6 +10,7 @@ import android.content.pm.Signature;
 import android.os.Parcel;
 import android.text.TextUtils;
 
+import com.cuan.helper.log.LogUtil;
 import com.cuan.helper.parcel.ParcelableUtils;
 import com.cuan.plugincore.plugin.PluginClassloader;
 import com.cuan.plugincore.plugin.PluginInfo;
