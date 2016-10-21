@@ -7,6 +7,7 @@
       <module fileurl="file://$PROJECT_DIR$/hiddenapistubs/hiddenapistubs.iml" filepath="$PROJECT_DIR$/hiddenapistubs/hiddenapistubs.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugincore/plugincore.iml" filepath="$PROJECT_DIR$/plugincore/plugincore.iml" />
       <module fileurl="file://$PROJECT_DIR$/testplugin/testplugin.iml" filepath="$PROJECT_DIR$/testplugin/testplugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/testplugin/testplugin.iml" filepath="$PROJECT_DIR$/testplugin/testplugin.iml" />
     </modules>
   </component>
 </project>
