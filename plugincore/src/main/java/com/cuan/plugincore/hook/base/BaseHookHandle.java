@@ -10,7 +10,7 @@ import java.util.HashMap;
 public abstract class BaseHookHandle {
 
 
-    protected HashMap<String,HookMethodHandler> mHookedMethodHandlers = new HashMap<>(5);
+    protected HashMap<String,HookedMethodHandler> mHookedMethodHandlers = new HashMap<>(5);
     /**
      * 获取用来处理被hook方法的handler
      *
@@ -21,7 +21,7 @@ public abstract class BaseHookHandle {
      * 返回null,说明该方法没有被hook
      * 否则返回处理该方法的handler
      */
-    public HookMethodHandler getMethodHandler(String methodName){
+    public HookedMethodHandler getHookedMethodHandler(String methodName){
         if(methodName!= null)
             return mHookedMethodHandlers.get(methodName);
         else
@@ -38,7 +38,7 @@ public abstract class BaseHookHandle {
     }
 
 
-    public void addHook(String methodName,HookMethodHandler hookMethodHandler){
+    public void addHook(String methodName,HookedMethodHandler hookMethodHandler){
         if(methodName != null && !methodName.isEmpty() && hookMethodHandler != null)
             mHookedMethodHandlers.put(methodName,hookMethodHandler);
     }

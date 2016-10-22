@@ -34,7 +34,9 @@ public abstract class Hook {
     /**
      * 用来处理被hook的接口对象的方法执行过程
      */
-    private BaseHookHandle mHookHandle;
+    protected BaseHookHandle mHookHandle;
+
+    protected abstract BaseHookHandle createHookHandle();
 
     public boolean ismEnable() {
         return mEnable;
@@ -60,5 +62,9 @@ public abstract class Hook {
      * 一般与被hook的接口对象的类加载器一致
      */
     public abstract void onUnInstall(ClassLoader classLoader) throws Throwable;
+
+    public boolean isEnable() {
+        return mEnable;
+    }
 
 }

@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 /**
  * 处理一个被hook的方法的执行过程
  */
-public abstract class HookMethodHandler {
+public abstract class HookedMethodHandler {
 
     private static String TAG  = "HookMethodHandler";
 
@@ -21,11 +21,11 @@ public abstract class HookMethodHandler {
 
     protected boolean mUseFakedResult = false;
 
-    protected  boolean beforeInvoke(Object receiver, Method method,Object[] args){
+    protected  boolean beforeInvoke(Object receiver, Method method,Object[] args) throws Throwable {
         return false;
     }
 
-    protected void afterInvoke(Object receiver,Method method,Object[] args,Object invokeResult){
+    protected void afterInvoke(Object receiver,Method method,Object[] args,Object invokeResult) throws Throwable {
 
     }
 
@@ -38,7 +38,7 @@ public abstract class HookMethodHandler {
      * @return
      * @throws Throwable
      */
-    public synchronized Object doInvokeInner(Object receiver,Method method,Object[] args) throws Throwable{
+    public synchronized Object doHookInner(Object receiver,Method method,Object[] args) throws Throwable{
         long b = System.currentTimeMillis();
         try {
             mUseFakedResult = false;
