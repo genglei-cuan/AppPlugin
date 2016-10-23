@@ -235,4 +235,12 @@ public class PluginManager {
         }
         return installer.getPluginByPackageName(packageName);
     }
+
+    /**
+     * 仅仅供测试使用
+     * @return
+     */
+    public ActivityThread getCurrentActivityThread(){
+        return ActivityThread.currentActivityThread();
+    }
 }

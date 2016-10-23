@@ -1,5 +1,6 @@
 package com.cuan.appplugin;
 
+import android.content.Intent;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
             android.util.Log.i("shajia","--: not find class!!!");
 
         }
-
-
+        startActivity(new Intent(this,Main2Activity.class));
     }
 }

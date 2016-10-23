@@ -22,6 +22,8 @@ package com.cuan.plugincore.hook.base;
  *
  * 当然该 hook  框架还可以用来 hook 一般的静态类型的接口对象，此种类型的 hook 代码存放在 proxy 文件夹中
  *
+ * 另外该 hook 框架还可以用来静态代理hook
+ *
  */
 public abstract class Hook {
 
@@ -38,11 +40,11 @@ public abstract class Hook {
 
     protected abstract BaseHookHandle createHookHandle();
 
-    public boolean ismEnable() {
+    public boolean isEnable() {
         return mEnable;
     }
 
-    public void setmEnable(boolean mEnable) {
+    public void setEnable(boolean mEnable) {
         this.mEnable = mEnable;
     }
 
@@ -63,8 +65,5 @@ public abstract class Hook {
      */
     public abstract void onUnInstall(ClassLoader classLoader) throws Throwable;
 
-    public boolean isEnable() {
-        return mEnable;
-    }
 
 }
