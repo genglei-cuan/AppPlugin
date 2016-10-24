@@ -8,6 +8,7 @@ import com.cuan.helper.log.DLog;
 import com.cuan.helper.reflect.Reflect;
 import com.cuan.plugincore.hook.HookManager;
 import com.cuan.plugincore.pluginmanager.PluginManager;
+import com.cuan.plugincore.servicemanager.ServiceManager;
 
 /**
  * Created by genglei.cuan on 16/9/18.
@@ -34,5 +35,6 @@ public class MyApplication extends Application {
 
         DLog.i("PluginInstrumentation","PluginInstrumentation: "+ Reflect.on(Reflect.on("android.app.ActivityThread").call("currentActivityThread").get()).field("mInstrumentation").get());
 
+        //ServiceManager.
     }
 }
